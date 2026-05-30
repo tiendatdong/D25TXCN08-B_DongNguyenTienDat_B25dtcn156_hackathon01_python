@@ -10,10 +10,9 @@ try:
             row["diem_tb"] = float(row["diem_tb"])
             ds.append(row)
 except FileNotFoundError:
-    print("Chưa có file dữ liệu, bắt đầu với danh sách rỗng.")
-
+    print("Chưa có file dữ liệu")
 while True:
-    print("\n--- MENU ---")
+    print("\n------------ MENU ------------")
     print("1. Hiển thị danh sách")
     print("2. Thêm mới sinh viên")
     print("3. Cập nhật thông tin")
@@ -24,16 +23,13 @@ while True:
     print("8. Liệt kê SV cao nhất/thấp nhất")
     print("9. Phân loại học lực")
     print("0. Thoát")
-
     chon = input("Chọn chức năng: ")
-
     if chon == "1":
         print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
             "Mã SV","Tên","Toán","Lý","Hóa","TB","Xếp loại"))
         for sv in ds:
             print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
                 sv["ma_sv"], sv["ten"], sv["toan"], sv["ly"], sv["hoa"], sv["diem_tb"], sv["xep_loai"]))
-
     elif chon == "2":
         ma = input("Nhập mã SV: ")
         if any(sv["ma_sv"] == ma for sv in ds):
@@ -53,7 +49,6 @@ while True:
         else: loai="Giỏi"
         ds.append({"ma_sv":ma,"ten":ten,"toan":toan,"ly":ly,"hoa":hoa,"diem_tb":tb,"xep_loai":loai})
         print("Đã thêm sinh viên.")
-
     elif chon == "3":
         ma = input("Nhập mã SV cần sửa: ")
         found = False
@@ -72,7 +67,6 @@ while True:
                 found = True
                 break
         if not found: print("Không tìm thấy SV.")
-
     elif chon == "4":
         ma = input("Nhập mã SV cần xóa: ")
         for sv in ds:
@@ -84,47 +78,62 @@ while True:
                 break
         else:
             print("Không tìm thấy SV.")
-
     elif chon == "5":
         key = input("Nhập tên hoặc mã SV cần tìm: ")
         ket_qua = [sv for sv in ds if key.lower() in sv["ten"].lower() or sv["ma_sv"]==key]
         for sv in ket_qua:
             print(sv)
-
     elif chon == "6":
         print("1. Sắp xếp theo điểm TB giảm dần")
         print("2. Sắp xếp theo tên A-Z")
         c = input("Chọn: ")
-        if c=="1":
-            ds.sort(key=lambda sv: sv["diem_tb"], reverse=True)
-        elif c=="2":
-            ds.sort(key=lambda sv: sv["ten"])
+        if c == "1":
+            for i in range(len(ds)-1):
+                for j in range(len(ds)-i-1):
+                    if ds[j]["diem_tb"] < ds[j+1]["diem_tb"]:
+                        ds[j], ds[j+1] = ds[j+1], ds[j]
+            print("Danh sách sau khi sắp xếp theo điểm TB giảm dần:")
+        elif c == "2":
+            for i in range(len(ds)-1):
+                for j in range(len(ds)-i-1):
+                    if ds[j]["ten"].lower() > ds[j+1]["ten"].lower():
+                        ds[j], ds[j+1] = ds[j+1], ds[j]
+            print("Danh sách sau khi sắp xếp theo tên A-Z:")
+        else:
+            print("Lựa chọn không hợp lệ!")
+            continue
+        print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
+            "Mã SV","Tên","Toán","Lý","Hóa","TB","Xếp loại"))
         for sv in ds:
-            print(sv)
-
+            print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
+                sv["ma_sv"], sv["ten"], sv["toan"], sv["ly"], sv["hoa"], sv["diem_tb"], sv["xep_loai"]))
     elif chon == "7":
         thongke={"Giỏi":0,"Khá":0,"Trung Bình":0,"Yếu":0}
         for sv in ds:
             thongke[sv["xep_loai"]] += 1
         print(thongke)
-
     elif chon == "8":
         if ds:
-            max_sv = max(ds, key=lambda sv: sv["diem_tb"])
-            min_sv = min(ds, key=lambda sv: sv["diem_tb"])
-            print("Cao nhất:", max_sv)
-            print("Thấp nhất:", min_sv)
+            max_sv = ds[0]
+            min_sv = ds[0]
+            for i in range(1, len(ds)):
+                if ds[i]["diem_tb"] > max_sv["diem_tb"]:
+                    max_sv = ds[i]
+                if ds[i]["diem_tb"] < min_sv["diem_tb"]:
+                    min_sv = ds[i]
+            print("SV có điểm TB cao nhất:")
+            print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
+                "Mã SV","Tên","Toán","Lý","Hóa","TB","Xếp loại"))
+            print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
+                max_sv["ma_sv"], max_sv["ten"], max_sv["toan"], max_sv["ly"], max_sv["hoa"], max_sv["diem_tb"], max_sv["xep_loai"]))
 
+            print("SV có điểm TB thấp nhất:")
+            print("{:<10}{:<20}{:<6}{:<6}{:<6}{:<6}{:<10}".format(
+                min_sv["ma_sv"], min_sv["ten"], min_sv["toan"], min_sv["ly"], min_sv["hoa"], min_sv["diem_tb"], min_sv["xep_loai"]))
     elif chon == "9":
         for sv in ds:
             print(sv["ten"], ":", sv["xep_loai"])
-
     elif chon == "0":
-        with open("data.csv","w",newline="",encoding="utf-8") as f:
-            fieldnames=["ma_sv","ten","toan","ly","hoa","diem_tb","xep_loai"]
-            writer=csv.DictWriter(f,fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(ds)
         print("Thoát chương trình.")
         break
 
