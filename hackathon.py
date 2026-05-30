@@ -1,16 +1,5 @@
 import csv
 ds = []
-try:
-    with open("data.csv", newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            row["toan"] = float(row["toan"])
-            row["ly"] = float(row["ly"])
-            row["hoa"] = float(row["hoa"])
-            row["diem_tb"] = float(row["diem_tb"])
-            ds.append(row)
-except FileNotFoundError:
-    print("Chưa có file dữ liệu")
 while True:
     print("\n------------ MENU ------------")
     print("1. Hiển thị danh sách")
